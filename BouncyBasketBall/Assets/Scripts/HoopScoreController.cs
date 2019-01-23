@@ -52,10 +52,6 @@ public class HoopScoreController : MonoBehaviour {
             {
                 singlePlayerController.scoreA = singlePlayerController.scoreA + 2;
             }
-        }
-        if (col.tag == "OutOfBound")
-        {
-            colOutOfBoundExit = true;
-        }
+        }        
     }
 }

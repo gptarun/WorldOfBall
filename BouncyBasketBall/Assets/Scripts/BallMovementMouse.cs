@@ -80,6 +80,16 @@ public class BallMovementMouse : MonoBehaviour
             colBodyExit = false;
             colHalfExit = false;
         }
+        if (col.tag.Contains("outofbound"))
+        {
+            colOutOfBoundExit = true;
+            StartCoroutine(MakeUserReadyFoul());
+        }
     }
-    
+    IEnumerator MakeUserReadyFoul()
+    {
+        singlePlayerController.FoulAnim.SetActive(true);
+        yield return new WaitForSeconds(1);
+        singlePlayerController.FoulAnim.SetActive(false);
+    }
 }

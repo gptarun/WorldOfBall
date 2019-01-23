@@ -28,6 +28,7 @@ public class SinglePlayerController : MonoBehaviour {
     private static bool pauseButtonPressed = false;
     bool gameOver = false;  
     public GameObject jumpAnim;
+    public GameObject FoulAnim;
     float delatTime;
     public GameObject[] player = new GameObject[6];
     // Use this for initialization
@@ -154,6 +155,7 @@ public class SinglePlayerController : MonoBehaviour {
         else
         {
             Debug.Log("Draw");
+            qTimer = OptionMenuScript.quaterDuration;
         }
     }
     public void MatchEnded()
