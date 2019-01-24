@@ -22,7 +22,7 @@ public class OptionMenuScript : MonoBehaviour {
     [SerializeField] Toggle music;
     //All static variables
     public static int quaterCounter = 4;
-    public static int teamSizeCounter = 2;
+    public static int teamSizeCounter = 3;
     public static string difficultyLevel = "EASY";
     public static bool isSound = true;
     public static bool isMusic = true;

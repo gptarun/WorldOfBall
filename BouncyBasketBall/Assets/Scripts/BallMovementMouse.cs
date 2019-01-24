@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class BallMovementMouse : MonoBehaviour
 {
@@ -22,6 +23,8 @@ public class BallMovementMouse : MonoBehaviour
     private SinglePlayerController singlePlayerController;
     private bool colHalfExit = false;
     private bool colOutOfBoundExit = false;
+    [SerializeField] AudioClip[] ballClip;
+    AudioSource playAudio;
 
     void Start()
     {
@@ -31,6 +34,7 @@ public class BallMovementMouse : MonoBehaviour
         basketA = GameObject.Find("Basket_Team1");
         basketB = GameObject.Find("Basket_Team2");
         ballPos = ball.position;
+        playAudio = GetComponent<AudioSource>();
         singlePlayerController = GameObject.Find("GameSceneObject").GetComponent<SinglePlayerController>();
     }
 
@@ -88,8 +92,25 @@ public class BallMovementMouse : MonoBehaviour
     }
     IEnumerator MakeUserReadyFoul()
     {
+        singlePlayerController.ResetPositions();
         singlePlayerController.FoulAnim.SetActive(true);
         yield return new WaitForSeconds(1);
         singlePlayerController.FoulAnim.SetActive(false);
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        Debug.Log("name: " + collision.transform.name);
+        Debug.Log("tag: " + collision.transform.tag);
+        if (collision.transform.name.Contains("Basket"))
+        {
+            AudioClip clip = ballClip[0];
+            playAudio.PlayOneShot(clip);
+        }
+        if (collision.transform.tag.Equals("ground"))
+        {         
+            AudioClip clip = ballClip[1];
+            playAudio.PlayOneShot(clip);
+        }
     }
 }

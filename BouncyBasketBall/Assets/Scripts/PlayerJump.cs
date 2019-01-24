@@ -22,6 +22,7 @@ public class PlayerJump : MonoBehaviour
     private bool rotateA;
     private bool rotateB;
     private bool antiRotate;
+    AudioSource jumpPlayerAudio;
 
     //private HingeJoint2D hingeJoint;
 
@@ -32,14 +33,17 @@ public class PlayerJump : MonoBehaviour
         z = 0.0f;
         rotationSpeed = 400.0f;
         antiRotate = false;
-        initializeObjects();
+        ballGameObject = GameObject.Find("basketball");
+        ballScript = ballGameObject.GetComponent<BallMovementMouse>();
+        jumpPlayerAudio = GetComponent<AudioSource>();
     }
     private void Update()
     {
         for (int i = 0; i < Input.touchCount; i++)
-        {
+        {           
+            Touch touchA = Input.GetTouch(i);          
             if (Input.touches[i].position.x < screenWidth / 2 && isGrounded)
-            {
+            {                
                 if (singlePlayerController.teamAMode.Equals("human"))
                 {
                     teamAJump = true;
@@ -68,7 +72,15 @@ public class PlayerJump : MonoBehaviour
                     rotateA = true;
                     teamAJump = true;
                 }
-            }           
+            }
+            if (touchA.phase.Equals(TouchPhase.Moved))
+            {
+                antiRotate = false;
+            }
+            if (touchA.phase.Equals(TouchPhase.Ended))
+            {
+                antiRotate = true;
+            }
         }
         if (rotateA)
         {
@@ -77,31 +89,23 @@ public class PlayerJump : MonoBehaviour
         if (rotateB)
         {
             RotateHandB();
-        }
-        if (ballGameObject == null)
-        {
-            initializeObjects();
-        }
+        }        
     }
 
     private void RotateHandA()
     {
         if (this.gameObject.tag.Equals("TeamA"))
         {
-            if (!antiRotate)
+            if (!antiRotate && z > -180.0f)
             {
                 z -= Time.deltaTime * rotationSpeed;
-            }
-            if (z < -180.0f)
-            {
-                antiRotate = true;
-            }
+            }           
             if (antiRotate)
             {
                 z += Time.deltaTime * rotationSpeed;
             }
             this.gameObject.transform.GetChild(0).transform.localRotation = Quaternion.Euler(0, 0, z);
-            if (z >= 0)
+            if (z >= 5)
             {
                 rotateA = false;
                 z = 0;
@@ -114,14 +118,10 @@ public class PlayerJump : MonoBehaviour
     {
         if (this.gameObject.tag.Equals("TeamB"))
         {
-            if (!antiRotate)
+            if (!antiRotate && (z > -180.0f))
             {
                 z -= Time.deltaTime * rotationSpeed;
-            }
-            if (z < -180.0f)
-            {
-                antiRotate = true;
-            }
+            }           
             if (antiRotate)
             {
                 z += Time.deltaTime * rotationSpeed;
@@ -140,6 +140,8 @@ public class PlayerJump : MonoBehaviour
     {
         if (this.gameObject.tag.Equals("TeamA"))
         {
+            if (jumpPlayerAudio != null)
+                jumpPlayerAudio.Play();
             jumpCoordinates = ballGameObject.transform.position - transform.position;
             jumpCoordinates.y = jumpConstant;
             jumpCoordinates.x = jumpCoordinates.x / 2;
@@ -152,6 +154,8 @@ public class PlayerJump : MonoBehaviour
     {
         if (this.gameObject.tag.Equals("TeamB"))
         {
+            if (jumpPlayerAudio != null)
+                jumpPlayerAudio.Play();
             jumpCoordinates = ballGameObject.transform.position - transform.position;
             jumpCoordinates.y = jumpConstant;
             jumpCoordinates.x = jumpCoordinates.x / 2;
@@ -160,12 +164,6 @@ public class PlayerJump : MonoBehaviour
 
         }
     }
-    void initializeObjects()
-    {
-        ballGameObject = GameObject.Find("basketball");
-        ballScript = ballGameObject.GetComponent<BallMovementMouse>();
-    }
-
     private void OnCollisionStay2D(Collision2D collision)
     {
         if (!collision.transform.name.Contains("Body"))

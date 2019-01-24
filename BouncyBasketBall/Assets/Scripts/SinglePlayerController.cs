@@ -31,8 +31,11 @@ public class SinglePlayerController : MonoBehaviour {
     public GameObject FoulAnim;
     float delatTime;
     public GameObject[] player = new GameObject[6];
+    Vector3[] playerPosition = new Vector3[6];
+    public Transform ballPosition;
+    Vector3 ballInitPos;
     // Use this for initialization
-    void Start () {        
+    void Start () {
         pauseButtonPressed = false;
         totalQuaterCounter = OptionMenuScript.quaterCounter;
         quater.text = "Q" + quaterCounter;
@@ -45,8 +48,9 @@ public class SinglePlayerController : MonoBehaviour {
         for (int i = 0; i < OptionMenuScript.teamSizeCounter*2; i++)
         { 
             player[i].SetActive(true);
+            playerPosition[i] = player[i].transform.position;
         }
-
+        ballPosition.transform.position = ballInitPos;
         StartCoroutine("LoseTime");
         delatTime = qTimer;
         Time.timeScale = 1;
@@ -85,11 +89,23 @@ public class SinglePlayerController : MonoBehaviour {
     
     IEnumerator MakeUserReady()
     {
+        StopCoroutine("LoseTime");
+        ResetPositions();
         jumpAnim.SetActive(true);
         yield return new WaitForSeconds(2);
         jumpAnim.SetActive(false);
+        StartCoroutine("LoseTime");
     }
-    
+
+    public void ResetPositions()
+    {
+        for (int i = 0; i < player.Length; i++)
+        {
+            player[i].transform.position = playerPosition[i];
+        }
+        ballPosition.transform.position = ballInitPos;        
+    }
+
     public void GameQuaterCounter(int qTimer)
     {
         quaterTimer.text = qTimer.ToString();                        
@@ -155,12 +171,14 @@ public class SinglePlayerController : MonoBehaviour {
         else
         {
             Debug.Log("Draw");
+            gameOver = false;
             qTimer = OptionMenuScript.quaterDuration;
         }
     }
     public void MatchEnded()
     {
         pauseButton.interactable = false;
+        StopAllCoroutines();
         canvasObject.SetActive(true);        
     }
 }
