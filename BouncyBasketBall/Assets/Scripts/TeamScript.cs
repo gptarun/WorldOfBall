@@ -8,12 +8,28 @@ public class TeamScript {
     private string shortName;
     private string mode;
     private Image flag;
+
+    public TeamScript(TeamScript teamScript)
+    {
+        this.teamName = teamScript.teamName;
+        this.shortName = teamScript.shortName;
+        this.mode = teamScript.mode;
+        this.flag = teamScript.flag;
+    }
+
+    public TeamScript(string teamName, string shortName, string mode)
+    {
+        this.teamName = teamName;
+        this.shortName = shortName;
+        this.mode = mode;
+    }
+
     public TeamScript(string teamName, string shortName, string mode, Image flag)
     {
-        TeamName = teamName;
-        ShortName = shortName;
-        Mode = mode;
-        Flag = flag;
+        this.teamName = teamName;
+        this.shortName = shortName;
+        this.mode = mode;
+        this.flag = flag;
     }
 
     public string Mode
@@ -67,4 +83,5 @@ public class TeamScript {
             flag = value;
         }
     }
+
 }

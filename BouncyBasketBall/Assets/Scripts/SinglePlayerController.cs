@@ -29,13 +29,26 @@ public class SinglePlayerController : MonoBehaviour {
     bool gameOver = false;  
     public GameObject jumpAnim;
     public GameObject FoulAnim;
+    public GameObject ExtraTimeAnim;
     float delatTime;
     public GameObject[] player = new GameObject[6];
     Vector3[] playerPosition = new Vector3[6];
     public Transform ballPosition;
     Vector3 ballInitPos;
+    GameObject basketball;
+    public AudioSource lastTick;
+    private bool isTick;
+    public AudioSource gameBell;
+    public bool matchEnded;
+    /// <summary>
+    ///These varaibles will be used for player creation dynamically a
+    /// </summary>
+    [HideInInspector] public Sprite[] faces;
+    [HideInInspector] public Sprite[] jersey;
     // Use this for initialization
+
     void Start () {
+        basketball = GameObject.Find("basketball");
         pauseButtonPressed = false;
         totalQuaterCounter = OptionMenuScript.quaterCounter;
         quater.text = "Q" + quaterCounter;
@@ -45,15 +58,34 @@ public class SinglePlayerController : MonoBehaviour {
         scoreB = 0;
         teamAScore.text = scoreA.ToString();
         teamBScore.text = scoreB.ToString();
+        faces = Resources.LoadAll<Sprite>("Face");
+        jersey = Resources.LoadAll<Sprite>("Team");        
+        int indexA = Array.FindIndex(jersey, cloth => cloth.name == teamAName.text.ToString().ToUpper());
+        int indexB = Array.FindIndex(jersey, cloth => cloth.name == teamBName.text.ToString().ToUpper());
         for (int i = 0; i < OptionMenuScript.teamSizeCounter*2; i++)
-        { 
-            player[i].SetActive(true);
+        {
             playerPosition[i] = player[i].transform.position;
+            player[i].SetActive(true);
+            if (i % 2 == 0) {
+                player[i].GetComponent<SpriteRenderer>().sprite = jersey[indexA];
+                int tempFace = UnityEngine.Random.Range(0, 11);
+                if( tempFace == 1) { tempFace++; }
+                player[i].gameObject.transform.Find("Face").GetComponent<SpriteRenderer>().sprite = faces[tempFace];
+            }
+            else
+            {
+                player[i].GetComponent<SpriteRenderer>().sprite = jersey[indexB];
+                int tempFace = UnityEngine.Random.Range(0, 11);
+                if (tempFace == 1) { tempFace++; }
+                player[i].gameObject.transform.Find("Face").GetComponent<SpriteRenderer>().sprite = faces[tempFace];
+            }                        
         }
-        ballPosition.transform.position = ballInitPos;
+        ballInitPos = ballPosition.position;
         StartCoroutine("LoseTime");
         delatTime = qTimer;
         Time.timeScale = 1;
+        isTick = true;
+        matchEnded = false;
         StartCoroutine(MakeUserReady());
     }
 	
@@ -74,6 +106,7 @@ public class SinglePlayerController : MonoBehaviour {
                 qTimer = OptionMenuScript.quaterDuration;
                 quaterCounter++;
                 quater.text = "Q" + quaterCounter;
+                isTick = true;
                 StartCoroutine(MakeUserReady());
             }
             else
@@ -84,26 +117,38 @@ public class SinglePlayerController : MonoBehaviour {
                     GameWinner();
                 }
             }
+            if (qTimer < 10 && qTimer >= 0 && lastTick != null && isTick )
+            {
+                isTick = false;
+                lastTick.Play();
+            }
+            lastTick.UnPause();
+        }
+        else
+        {
+            lastTick.Pause();            
         }
     }
-    
+    //This is the basic coroutine to reset everytime when you score, foul and timer expires. Also acknowledged the timer to stop
     IEnumerator MakeUserReady()
     {
-        StopCoroutine("LoseTime");
         ResetPositions();
         jumpAnim.SetActive(true);
         yield return new WaitForSeconds(2);
         jumpAnim.SetActive(false);
-        StartCoroutine("LoseTime");
     }
 
     public void ResetPositions()
     {
+        StopCoroutine("LoseTime");
+        basketball.GetComponent<Rigidbody2D>().velocity = Vector3.zero;
+        basketball.GetComponent<Rigidbody2D>().angularVelocity = 0;
         for (int i = 0; i < player.Length; i++)
         {
             player[i].transform.position = playerPosition[i];
         }
-        ballPosition.transform.position = ballInitPos;        
+        ballPosition.transform.position = ballInitPos;
+        StartCoroutine("LoseTime");
     }
 
     public void GameQuaterCounter(int qTimer)
@@ -118,8 +163,8 @@ public class SinglePlayerController : MonoBehaviour {
 
     public void SetTeams(string teamANameSelected, string teamBNameSelected, string modeA, string modeB)
     {
-        teamAName.text = teamANameSelected.Substring(0, 4);
-        teamBName.text = teamBNameSelected.Substring(0, 4);
+        teamAName.text = teamANameSelected.Substring(0, 3);
+        teamBName.text = teamBNameSelected.Substring(0, 3);
         teamAMode = modeA;
         teamBMode = modeB;
         teamAFullName = teamANameSelected;
@@ -172,13 +217,29 @@ public class SinglePlayerController : MonoBehaviour {
         {
             Debug.Log("Draw");
             gameOver = false;
+            StartCoroutine(Draw());
             qTimer = OptionMenuScript.quaterDuration;
         }
     }
     public void MatchEnded()
     {
+        if (gameBell != null)
+        {
+            gameBell.Play();
+        }
         pauseButton.interactable = false;
+        isTick = true;        
+        basketball.GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Static;
         StopAllCoroutines();
-        canvasObject.SetActive(true);        
+        canvasObject.SetActive(true);
+        matchEnded = true;
+    }
+
+    IEnumerator Draw()
+    {
+        ResetPositions();        
+        ExtraTimeAnim.SetActive(true);
+        yield return new WaitForSeconds(1);
+        ExtraTimeAnim.SetActive(false);
     }
 }

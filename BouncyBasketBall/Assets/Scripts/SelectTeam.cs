@@ -8,7 +8,8 @@ using UnityEngine.SceneManagement;
 
 public class SelectTeam : MonoBehaviour {
 
-    private List<string> teamList = new List<string>(new string[] { "Africa", "Argentina", "Australia", "Brazil", "China", "France", "India", "Mexico", "Philippines", "Russia", "Serbia", "Singapore", "Spain", "Thailand", "United States", "Yugoslavia"});
+    private List<string> teamList = new List<string>(new string[] { "Africa", "Argentina", "Australia", "Brazil", "China", "France", "India", "Mexico", "Philippines", "Russia", "Serbia", "Singapore", "Spain", "Thailand", "USA", "Yugoslavia"});
+    private readonly List<string> teamListShort = new List<string>(new string[] { "Afr", "Arg", "Aus", "Bra", "Chi", "Fra", "Ind", "Mex", "Phi", "Rus", "Ser", "Sin", "Spa", "Tha", "Usa", "Yug" });
     private readonly List<int> teamRating = new List<int>(new int[] { 2,3,2,3,2,3,2,1,2,3,2,2,3,2,3,3 });
     //Choosing Teams
     [SerializeField] public TextMeshProUGUI teamAChoice;
@@ -148,7 +149,12 @@ public class SelectTeam : MonoBehaviour {
 
     public void SetTeamForTournament()
     {
-        tournament.SetTeam(teamList[indexA].ToString(), teamList[indexB].ToString(),modeA,modeB,teamAFlag.image.sprite,teamBFlag.image.sprite, currButtonName);
+        //tournament.SetTeam(teamList[indexA].ToString(), teamList[indexB].ToString(),modeA,modeB,teamAFlag.image.sprite,teamBFlag.image.sprite, currButtonName);
+        Image imageTeamA = SetFlagSpriteoFTeam(currButtonName, "TeamA", teamAFlag.image.sprite);
+        Image imageTeamB = SetFlagSpriteoFTeam(currButtonName, "TeamB", teamBFlag.image.sprite);
+        TeamScript teamA = new TeamScript(teamList[indexA].ToString(), teamListShort[indexA].ToString(), modeA, imageTeamA);
+        TeamScript teamB = new TeamScript(teamList[indexB].ToString(), teamListShort[indexB].ToString(), modeB, imageTeamB);
+        tournament.SetTeam(new MatchDay(teamA, teamB, currButtonName));
     }
 
     public void SetTeamForSingleMatch()
@@ -164,5 +170,13 @@ public class SelectTeam : MonoBehaviour {
     public void LoadMainMenu()
     {
         SceneManager.LoadScene("MainMenuScene");
+    }
+
+    public Image SetFlagSpriteoFTeam(string buttonName, string gameObjectName, Sprite sprite)
+    {
+        Image imageTeam = GameObject.Find(buttonName).transform.Find(gameObjectName).GetComponent<Image>();
+        imageTeam.overrideSprite = sprite;
+        imageTeam.sprite = sprite;
+        return imageTeam;
     }
 }

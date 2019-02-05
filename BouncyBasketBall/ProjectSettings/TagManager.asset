@@ -11,6 +11,11 @@ TagManager:
   - ground
   - BasketA
   - BasketB
+  - outofbound
+  - handpivot
+  - space
+  - upperbound
+  - lowerbound
   layers:
   - Default
   - TransparentFX
@@ -20,11 +25,11 @@ TagManager:
   - UI
   - 
   - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - ball
+  - hand
+  - ground
+  - Player
+  - space
   - 
   - 
   - 
